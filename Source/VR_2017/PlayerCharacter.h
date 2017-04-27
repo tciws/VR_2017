@@ -12,19 +12,32 @@ class VR_2017_API APlayerCharacter : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	APlayerCharacter();
+	APlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
-	
+	virtual void MoveForward(float value);
+
+	virtual void MoveRight(float value);
+
+	void OpenDoor();
+
+	bool GetIsOpeningDoor()
+	{
+		return m_isOpeningDoor;
+	}
+
+private:
+	UCameraComponent* FirstPersonCamera;
+
+	bool m_isOpeningDoor;
 };
