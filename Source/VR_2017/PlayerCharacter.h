@@ -36,7 +36,12 @@ public:
 		return m_isOpeningDoor;
 	}
 
+	class AUsableActor* GetUsableInView();
+
 private:
+	UPROPERTY(EditAnywhere)
+		float maxTraceDistance;
+
 	UCameraComponent* FirstPersonCamera;
 
 	bool m_isOpeningDoor;
