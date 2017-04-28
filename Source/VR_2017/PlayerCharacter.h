@@ -25,9 +25,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void MoveForward(float value);
+	void MoveForward(float value);
 
-	virtual void MoveRight(float value);
+	void MoveRight(float value);
+
+	void OccurEvent();
 
 	void OpenDoor();
 

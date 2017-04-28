@@ -5,6 +5,13 @@
 #include "GameFramework/Actor.h"
 #include "UsableActor.generated.h"
 
+UENUM()
+enum class Item
+{
+	noItem,
+	test
+};
+
 UCLASS()
 class VR_2017_API AUsableActor : public AActor
 {
@@ -22,6 +29,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
-	
+	virtual Item Event();
+
+protected:
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* m_MyMesh;
 };

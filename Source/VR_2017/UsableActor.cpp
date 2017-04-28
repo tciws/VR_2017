@@ -10,6 +10,8 @@ AUsableActor::AUsableActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
+	m_MyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyMesh"));
 }
 
 // Called when the game starts or when spawned
@@ -24,5 +26,12 @@ void AUsableActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+Item AUsableActor::Event()
+{
+	GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Event!");
+
+	return Item::noItem;
 }
 

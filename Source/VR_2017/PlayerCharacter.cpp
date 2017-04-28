@@ -49,7 +49,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
 	InputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
 
-	InputComponent->BindAction("OpenDoor", IE_Pressed, this, &APlayerCharacter::OpenDoor);
+	InputComponent->BindAction("OccurEvent", IE_Pressed, this, &APlayerCharacter::OccurEvent);
 }
 
 void APlayerCharacter::MoveForward(float value)
@@ -84,6 +84,20 @@ void APlayerCharacter::OpenDoor()
 	}
 }
 
+void APlayerCharacter::OccurEvent()
+{
+	AUsableActor* Usable = GetUsableInView();
+
+	if (Usable)
+	{
+		//Usable->Event();
+	}
+	else if(!Usable)
+	{
+		GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Can not Trace");
+	}
+}
+
 AUsableActor* APlayerCharacter::GetUsableInView()
 {
 	FVector CameraLoc;
@@ -103,7 +117,7 @@ AUsableActor* APlayerCharacter::GetUsableInView()
 	TraceParams.bTraceComplex = true;
 
 	FHitResult Hit(ForceInit);
-	ActorLineTraceSingle(Hit, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
+	GetWorld()->LineTraceSingleByObjectType(Hit, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
 
 	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f);
 
