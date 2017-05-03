@@ -1,11 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VR_2017.h"
+#include "unordered_map"
 #include "UsableActor.h"
 
 
 // Sets default values
-AUsableActor::AUsableActor()
+AUsableActor::AUsableActor():
+	m_itemName(ItemName::noItem)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,10 +30,28 @@ void AUsableActor::Tick(float DeltaTime)
 
 }
 
-Item AUsableActor::Event()
+ItemName AUsableActor::Event()
 {
-	GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Event!");
+	/****************** For Debug ***************************************/
 
-	return Item::noItem;
+	std::unordered_map<ItemName, FString> myMap{
+		{ItemName::book, "book"},
+		{ItemName::key, "key"},
+		{ItemName::paper, "paper"},
+		{ItemName::clip, "clip"}
+	};
+
+	FString item = "You got " + myMap.at(m_itemName);
+
+	GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Black, item);
+
+	/*********************************************************************/
+
+	// disable an actor
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	SetActorTickEnabled(false);
+
+	return m_itemName;
 }
 

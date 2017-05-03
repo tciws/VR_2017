@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VR_2017.h"
+#include "Engine.h"
 #include "PlayerCharacter.h"
 #include "UsableActor.h"
 
@@ -8,7 +9,8 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 	m_isOpeningDoor(false),
-	maxTraceDistance(800.0f)
+	maxTraceDistance(800.0f),
+	m_gotItemFlags(0)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -87,10 +89,16 @@ void APlayerCharacter::OpenDoor()
 void APlayerCharacter::OccurEvent()
 {
 	AUsableActor* Usable = GetUsableInView();
+	ItemName item;
 
 	if (Usable)
 	{
-		//Usable->Event();
+		item = Usable->Event();
+		if (item != ItemName::noItem)
+		{
+			PickupItem(item);
+		}
+		//GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, FString::Printf(TEXT("flag is %d"), m_gotItemFlags));
 	}
 	else if(!Usable)
 	{
@@ -111,15 +119,22 @@ AUsableActor* APlayerCharacter::GetUsableInView()
 	const FVector Direction = CameraRot.Vector();
 	const FVector TraceEnd = TraceStart + (Direction * maxTraceDistance);
 
-	FCollisionQueryParams TraceParams(FName(TEXT("TraceUsableActor")), true, this);
-	TraceParams.bTraceAsyncScene = true;
-	TraceParams.bReturnPhysicalMaterial = false;
-	TraceParams.bTraceComplex = true;
+	FCollisionQueryParams *TraceParams = new FCollisionQueryParams;
 
-	FHitResult Hit(ForceInit);
-	GetWorld()->LineTraceSingleByObjectType(Hit, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
+	FHitResult *Hit = new FHitResult;
+	GetWorld()->LineTraceSingleByChannel(*Hit, TraceStart, TraceEnd, ECC_Visibility, *TraceParams);
 
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f);
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
 
-	return Cast<AUsableActor>(Hit.GetActor());
+	return Cast<AUsableActor>(Hit->GetActor());
+}
+
+void APlayerCharacter::PickupItem(ItemName itemName)
+{
+	m_gotItemFlags |= (1 << static_cast<int>(itemName));
+}
+
+void APlayerCharacter::LoseItem(ItemName itemName)
+{
+	m_gotItemFlags &= ~(1 << static_cast<int>(itemName));
 }
