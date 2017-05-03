@@ -2,11 +2,13 @@
 
 #include "VR_2017.h"
 #include "PlayerCharacter.h"
+#include "UsableActor.h"
 
 
 // Sets default values
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
-	m_isOpeningDoor(false)
+	m_isOpeningDoor(false),
+	maxTraceDistance(800.0f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -47,7 +49,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
 	InputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
 
-	InputComponent->BindAction("OpenDoor", IE_Pressed, this, &APlayerCharacter::OpenDoor);
+	InputComponent->BindAction("OccurEvent", IE_Pressed, this, &APlayerCharacter::OccurEvent);
 }
 
 void APlayerCharacter::MoveForward(float value)
@@ -80,4 +82,44 @@ void APlayerCharacter::OpenDoor()
 	{
 		GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "The Door Open!");
 	}
+}
+
+void APlayerCharacter::OccurEvent()
+{
+	AUsableActor* Usable = GetUsableInView();
+
+	if (Usable)
+	{
+		//Usable->Event();
+	}
+	else if(!Usable)
+	{
+		GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Can not Trace");
+	}
+}
+
+AUsableActor* APlayerCharacter::GetUsableInView()
+{
+	FVector CameraLoc;
+	FRotator CameraRot;
+
+	if (Controller == NULL)
+		return NULL;
+
+	Controller->GetPlayerViewPoint(CameraLoc, CameraRot);
+	const FVector TraceStart = CameraLoc;
+	const FVector Direction = CameraRot.Vector();
+	const FVector TraceEnd = TraceStart + (Direction * maxTraceDistance);
+
+	FCollisionQueryParams TraceParams(FName(TEXT("TraceUsableActor")), true, this);
+	TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = false;
+	TraceParams.bTraceComplex = true;
+
+	FHitResult Hit(ForceInit);
+	GetWorld()->LineTraceSingleByObjectType(Hit, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
+
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f);
+
+	return Cast<AUsableActor>(Hit.GetActor());
 }

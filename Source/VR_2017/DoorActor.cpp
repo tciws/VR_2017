@@ -26,7 +26,6 @@ ADoorActor::ADoorActor() :
 	m_TurnAxis = CreateDefaultSubobject<UBoxComponent>(TEXT("TurnAxis"));
 	m_TurnAxis->AttachTo(m_Parent);
 
-	m_MyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyMesh"));
 	m_MyMesh->AttachTo(m_TurnAxis);
 }
 
@@ -53,6 +52,11 @@ void ADoorActor::Tick(float DeltaTime)
 	{
 		CloseDoor(DeltaTime);
 	}
+}
+
+Item ADoorActor::Event()
+{
+	return Item::noItem;
 }
 
 void ADoorActor::TriggerEnter(class UPrimitiveComponent* HitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

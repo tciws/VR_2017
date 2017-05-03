@@ -3,10 +3,11 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "UsableActor.h"
 #include "DoorActor.generated.h"
 
 UCLASS()
-class VR_2017_API ADoorActor : public AActor
+class VR_2017_API ADoorActor : public AUsableActor
 {
 	GENERATED_BODY()
 
@@ -22,6 +23,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual Item Event() override;
+
 	UFUNCTION()
 		void TriggerEnter(class UPrimitiveComponent* HitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -36,9 +39,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 		UShapeComponent* m_BoxTrigger;
-
-	UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* m_MyMesh;
 
 	static const float openSpeed;
 	static const float maxOpenAngle;
