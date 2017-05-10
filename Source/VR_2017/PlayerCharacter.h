@@ -47,4 +47,9 @@ private:
 	UCameraComponent* FirstPersonCamera;
 
 	bool m_isOpeningDoor;
+	
+	unsigned int m_gotItemFlags;
+
+	void PickupItem(enum class ItemName itemName);
+	void LoseItem(enum class ItemName itemName);
 };

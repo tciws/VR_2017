@@ -6,10 +6,13 @@
 #include "UsableActor.generated.h"
 
 UENUM()
-enum class Item
+enum class ItemName
 {
 	noItem,
-	test
+	book,
+	paper,
+	key,
+	clip
 };
 
 UCLASS()
@@ -29,9 +32,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual Item Event();
+	virtual ItemName Event();
 
 protected:
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* m_MyMesh;
+
+private:
+	UPROPERTY(EditAnywhere)
+		ItemName m_itemName;
 };

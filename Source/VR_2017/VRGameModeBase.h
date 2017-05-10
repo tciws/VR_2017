@@ -14,6 +14,7 @@ class VR_2017_API AVRGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 	
 	
-	
+public:
+	AVRGameModeBase();
 	
 };

@@ -54,9 +54,10 @@ void ADoorActor::Tick(float DeltaTime)
 	}
 }
 
-Item ADoorActor::Event()
+ItemName ADoorActor::Event()
 {
-	return Item::noItem;
+	m_isOpen = true;
+	return ItemName::noItem;
 }
 
 void ADoorActor::TriggerEnter(class UPrimitiveComponent* HitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
