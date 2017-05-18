@@ -50,7 +50,4 @@ private:
 	void CloseDoor(float deltaTime);
 
 	float doorRotate;
-
-	UPROPERTY(EditAnywhere)
-		FVector TurnAxis;
 };

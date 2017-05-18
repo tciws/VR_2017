@@ -8,8 +8,7 @@
 // Sets default values
 ADoorActor::ADoorActor() :
 	m_isOpen(false),
-	doorRotate(0.0f),
-	TurnAxis(0, 500, 0)
+	doorRotate(0.0f)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
