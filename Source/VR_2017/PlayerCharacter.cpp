@@ -24,6 +24,10 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 
 	//Allow the pawn to control rotation
 	FirstPersonCamera->bUsePawnControlRotation = true;
+	FirstPersonCamera->PostProcessSettings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_Gaussian;
+	FirstPersonCamera->PostProcessSettings.DepthOfFieldFocalDistance = 100.0f;
+	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldMethod = true;
+	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
 
 	m_UnderBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("UnderBodyMesh"));
 	m_UnderBodyMesh->AttachTo(GetRootComponent());
@@ -33,6 +37,14 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 
 	m_TopBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TopBodyMesh"));
 	m_TopBodyMesh->AttachTo(m_TurnAxis);
+
+	/*
+	APPV = CreateDefaultSubobject<APostProcessVolume>(TEXT("APPV"));
+	APPV->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale,TEXT("APPV"));
+	APPV->bUnbound = false;
+	APPV->Settings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_BokehDOF;
+	APPV->Settings.DepthOfFieldFocalDistance = 100.0f;
+	*/
 }
 
 // Called when the game starts or when spawned
@@ -170,6 +182,7 @@ void APlayerCharacter::LoseItem(ItemName itemName)
 void APlayerCharacter::SetIsOperateCellphone()
 {
 	m_isOperateCellphone = !m_isOperateCellphone;
+	//APPV->bUnbound = m_isOperateCellphone;
 	m_UnderBodyMesh->SetHiddenInGame(!m_isOperateCellphone);
 	m_TurnAxis->SetHiddenInGame(!m_isOperateCellphone);
 	m_TopBodyMesh->SetHiddenInGame(!m_isOperateCellphone);

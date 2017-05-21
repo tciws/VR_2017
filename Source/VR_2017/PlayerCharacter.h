@@ -64,4 +64,7 @@ private:
 
 	float m_openAxis;
 
+	//UPROPERTY(EditAnywhere)
+		//APostProcessVolume* APPV;
+
 };
