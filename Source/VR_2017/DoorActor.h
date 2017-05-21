@@ -43,11 +43,12 @@ private:
 	static const float openSpeed;
 	static const float maxOpenAngle;
 
+	UPROPERTY(EditAnywhere)
 	bool m_isOpen;
 
 	void OpenDoor(float deltaTime);
 
 	void CloseDoor(float deltaTime);
 
-	float doorRotate;
+	float doorAngle;
 };

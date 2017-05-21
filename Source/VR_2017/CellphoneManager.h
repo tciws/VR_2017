@@ -22,10 +22,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
 
-	void OpenCellphone();
+	void SetIsOpening()
+	{
+		m_isOpening = true;
+		GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Cellphone Open!");
+	}
 	
 private:
 	UPROPERTY(EditAnywhere)
@@ -37,8 +40,12 @@ private:
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* m_UnderBodyMesh;
 
+	static const float openSpeed;
+	static const float maxOpenAngle;
+
 	float m_openAngle;
 
-	bool m_isOpen;
+	bool m_isOpening, m_isClosing;
 	
+	void OpenCellphone(float deltaTime);
 };

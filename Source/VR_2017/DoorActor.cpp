@@ -8,7 +8,7 @@
 // Sets default values
 ADoorActor::ADoorActor() :
 	m_isOpen(false),
-	doorRotate(0.0f)
+	doorAngle(0.0f)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -61,28 +61,30 @@ ItemName ADoorActor::Event()
 
 void ADoorActor::TriggerEnter(class UPrimitiveComponent* HitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	m_isOpen = true;
+	//m_isOpen = true;
+	//openDirection = 1.0f;
 }
 
 void ADoorActor::TriggerExit(class UPrimitiveComponent* HitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	m_isOpen = false;
+	GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, TEXT("close"));
 }
 
 void ADoorActor::OpenDoor(float deltaTime)
 {
-	if (doorRotate < maxOpenAngle)
+	if (doorAngle < maxOpenAngle)
 	{
-		doorRotate += openSpeed * deltaTime;
-		m_TurnAxis->SetWorldRotation(FQuat(FRotator(0.0f, doorRotate, 0.0f)));
+		doorAngle += openSpeed * deltaTime;
+		m_TurnAxis->SetRelativeRotation(FQuat(FRotator(0.0f, doorAngle, 0.0f)));
 	}
 }
 
 void ADoorActor::CloseDoor(float deltaTime)
 {
-	if (doorRotate > 0.0f)
+	if (doorAngle > 0.0f)
 	{
-		doorRotate -= openSpeed * deltaTime;
-		m_TurnAxis->SetWorldRotation(FQuat(FRotator(0.0f, doorRotate, 0.0f)));
+		doorAngle -= openSpeed * deltaTime;
+		m_TurnAxis->SetRelativeRotation(FQuat(FRotator(0.0f, doorAngle, 0.0f)));
 	}
 }
