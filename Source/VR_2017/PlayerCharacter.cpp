@@ -8,9 +8,10 @@
 
 // Sets default values
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
-	m_isOpeningDoor(false),
-	maxTraceDistance(800.0f),
-	m_gotItemFlags(0)
+	m_isOperateCellphone(false),
+	maxTraceDistance(200.0f),
+	m_gotItemFlags(0),
+	m_openAxis(160.0f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -23,7 +24,27 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 
 	//Allow the pawn to control rotation
 	FirstPersonCamera->bUsePawnControlRotation = true;
+	FirstPersonCamera->PostProcessSettings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_Gaussian;
+	FirstPersonCamera->PostProcessSettings.DepthOfFieldFocalDistance = 100.0f;
+	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldMethod = true;
+	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
 
+	m_UnderBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("UnderBodyMesh"));
+	m_UnderBodyMesh->AttachTo(GetRootComponent());
+
+	m_TurnAxis = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurnAxis"));
+	m_TurnAxis->AttachTo(m_UnderBodyMesh);
+
+	m_TopBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TopBodyMesh"));
+	m_TopBodyMesh->AttachTo(m_TurnAxis);
+
+	/*
+	APPV = CreateDefaultSubobject<APostProcessVolume>(TEXT("APPV"));
+	APPV->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale,TEXT("APPV"));
+	APPV->bUnbound = false;
+	APPV->Settings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_BokehDOF;
+	APPV->Settings.DepthOfFieldFocalDistance = 100.0f;
+	*/
 }
 
 // Called when the game starts or when spawned
@@ -31,6 +52,9 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	m_UnderBodyMesh->SetHiddenInGame(true);
+	m_TurnAxis->SetHiddenInGame(true);
+	m_TopBodyMesh->SetHiddenInGame(true);
 }
 
 // Called every frame
@@ -38,7 +62,28 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (m_isOperateCellphone)
+	{
+		if (m_openAxis > 0.0f)
+		{
+			m_openAxis -= openSpeed * DeltaTime;
+			m_TurnAxis->SetRelativeRotation(FQuat(FRotator(0.0f, 0.0f, m_openAxis)));
+			m_UnderBodyMesh->SetRelativeLocation(FVector(100.0f * (1 - m_openAxis / maxOpenAxis), 0.0f, 100.0f));
+		}
+	}
+	else
+	{
+		if (m_openAxis < maxOpenAxis)
+		{
+			m_openAxis += openSpeed * DeltaTime;
+			m_TurnAxis->SetRelativeRotation(FQuat(FRotator(0.0f, 0.0f, m_openAxis)));
+			m_UnderBodyMesh->SetRelativeLocation(FVector(100.0f * (1 - m_openAxis / maxOpenAxis), 0.0f, 100.0f));
+		}
+	}
 }
+
+const float APlayerCharacter::maxOpenAxis = 160.0f;
+const float APlayerCharacter::openSpeed = 180.0f;
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -52,11 +97,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
 
 	InputComponent->BindAction("OccurEvent", IE_Pressed, this, &APlayerCharacter::OccurEvent);
+
+	InputComponent->BindAction("OpenCellphone", IE_Pressed, this, &APlayerCharacter::SetIsOperateCellphone);
 }
 
 void APlayerCharacter::MoveForward(float value)
 {
-	if ((Controller != NULL) && (value != 0))
+	if ((Controller != NULL) && (value != 0) && !m_isOperateCellphone)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
@@ -67,7 +114,7 @@ void APlayerCharacter::MoveForward(float value)
 
 void APlayerCharacter::MoveRight(float value)
 {
-	if ((Controller != NULL) && (value != 0))
+	if ((Controller != NULL) && (value != 0) && !m_isOperateCellphone)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
@@ -76,33 +123,26 @@ void APlayerCharacter::MoveRight(float value)
 	}
 }
 
-void APlayerCharacter::OpenDoor()
-{
-	m_isOpeningDoor = true;
-
-	if (m_isOpeningDoor)
-	{
-		GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "The Door Open!");
-	}
-}
-
 void APlayerCharacter::OccurEvent()
 {
-	AUsableActor* Usable = GetUsableInView();
-	ItemName item;
+	if (!m_isOperateCellphone)
+	{
+		AUsableActor* Usable = GetUsableInView();
+		ItemName item;
 
-	if (Usable)
-	{
-		item = Usable->Event();
-		if (item != ItemName::noItem)
+		if (Usable)
 		{
-			PickupItem(item);
+			item = Usable->Event();
+			if (item != ItemName::noItem)
+			{
+				PickupItem(item);
+			}
+			//GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, FString::Printf(TEXT("flag is %d"), m_gotItemFlags));
 		}
-		//GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, FString::Printf(TEXT("flag is %d"), m_gotItemFlags));
-	}
-	else if(!Usable)
-	{
-		GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Can not Trace");
+		else if (!Usable)
+		{
+			GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Can not Trace");
+		}
 	}
 }
 
@@ -137,4 +177,13 @@ void APlayerCharacter::PickupItem(ItemName itemName)
 void APlayerCharacter::LoseItem(ItemName itemName)
 {
 	m_gotItemFlags &= ~(1 << static_cast<int>(itemName));
+}
+
+void APlayerCharacter::SetIsOperateCellphone()
+{
+	m_isOperateCellphone = !m_isOperateCellphone;
+	//APPV->bUnbound = m_isOperateCellphone;
+	m_UnderBodyMesh->SetHiddenInGame(!m_isOperateCellphone);
+	m_TurnAxis->SetHiddenInGame(!m_isOperateCellphone);
+	m_TopBodyMesh->SetHiddenInGame(!m_isOperateCellphone);
 }
