@@ -31,25 +31,40 @@ public:
 
 	void OccurEvent();
 
-	void OpenDoor();
-
-	bool GetIsOpeningDoor()
-	{
-		return m_isOpeningDoor;
-	}
-
 	class AUsableActor* GetUsableInView();
 
 private:
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* m_TurnAxis;
+
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* m_TopBodyMesh;
+
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* m_UnderBodyMesh;
+
 	UPROPERTY(EditAnywhere)
 		float maxTraceDistance;
 
 	UCameraComponent* FirstPersonCamera;
 
-	bool m_isOpeningDoor;
+	bool m_isOperateCellphone;
 	
 	unsigned int m_gotItemFlags;
 
 	void PickupItem(enum class ItemName itemName);
 	void LoseItem(enum class ItemName itemName);
+
+	void SetIsOperateCellphone();
+
+/******Debug*******/
+private:
+	static const float maxOpenAxis;
+	static const float openSpeed;
+
+	float m_openAxis;
+
+	//UPROPERTY(EditAnywhere)
+		//APostProcessVolume* APPV;
+
 };
