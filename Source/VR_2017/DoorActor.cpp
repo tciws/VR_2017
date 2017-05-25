@@ -68,7 +68,7 @@ void ADoorActor::TriggerEnter(class UPrimitiveComponent* HitComponent, class AAc
 void ADoorActor::TriggerExit(class UPrimitiveComponent* HitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	m_isOpen = false;
-	GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, TEXT("close"));
+	//GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, TEXT("close"));
 }
 
 void ADoorActor::OpenDoor(float deltaTime)

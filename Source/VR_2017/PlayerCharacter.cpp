@@ -9,7 +9,7 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 	m_isOperateCellphone(false),
-	maxTraceDistance(200.0f),
+	maxTraceDistance(250.0f),
 	m_gotItemFlags(0),
 	m_openAxis(160.0f)
 {
@@ -39,7 +39,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 	FirstPersonCamera->AttachTo(GetRootComponent());
 
 	//Position the camera a bit above the eyes
-	FirstPersonCamera->RelativeLocation = FVector(0, 0, 50.0f + BaseEyeHeight);
+	FirstPersonCamera->RelativeLocation = FVector(0, 0, BaseEyeHeight);
 
 	//Allow the pawn to control rotation
 	FirstPersonCamera->bUsePawnControlRotation = true;
@@ -148,7 +148,7 @@ void APlayerCharacter::OccurEvent()
 		}
 		else if (!Usable)
 		{
-			GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Can not Trace");
+			//GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Can not Trace");
 		}
 	}
 }
@@ -171,7 +171,7 @@ AUsableActor* APlayerCharacter::GetUsableInView()
 	FHitResult *Hit = new FHitResult;
 	GetWorld()->LineTraceSingleByChannel(*Hit, TraceStart, TraceEnd, ECC_Visibility, *TraceParams);
 
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
 
 	return Cast<AUsableActor>(Hit->GetActor());
 }
