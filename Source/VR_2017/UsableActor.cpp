@@ -43,7 +43,7 @@ ItemName AUsableActor::Event()
 
 	FString item = "You got " + myMap.at(m_itemName);
 
-	GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Black, item);
+	//GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Black, item);
 
 	/*********************************************************************/
 
