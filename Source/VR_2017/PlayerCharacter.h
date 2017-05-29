@@ -46,6 +46,9 @@ private:
 	UPROPERTY(EditAnywhere)
 		float maxTraceDistance;
 
+	const float heightOfCellphone = 65.0f;
+	const float distanceOfCellphone = -25.0f;
+
 	UCameraComponent* FirstPersonCamera;
 
 	bool m_isOperateCellphone;
