@@ -9,7 +9,7 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 	m_isOperateCellphone(false),
-	maxTraceDistance(250.0f),
+	maxTraceDistance(200.0f),
 	m_gotItemFlags(0),
 	m_openAxis(160.0f)
 {
@@ -17,41 +17,34 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 	PrimaryActorTick.bCanEverTick = true;
 
 	FirstPersonCamera = ObjectInitialier.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FirstPersonCamera"));
-
-	//focas setting
-	FirstPersonCamera->PostProcessSettings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_BokehDOF;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldMethod = false;
-	FirstPersonCamera->PostProcessSettings.DepthOfFieldFocalDistance = 100.0f;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFocalDistance = false;
-	FirstPersonCamera->PostProcessSettings.DepthOfFieldFocalRegion = 300.0f;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFocalRegion = false;
-	FirstPersonCamera->PostProcessSettings.DepthOfFieldNearTransitionRegion = 0.0f;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldNearTransitionRegion = false;
-	FirstPersonCamera->PostProcessSettings.DepthOfFieldFarTransitionRegion = 1600.0f;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFarTransitionRegion = false;
-	FirstPersonCamera->PostProcessSettings.DepthOfFieldScale = 0.44f;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldScale = false;
-	FirstPersonCamera->PostProcessSettings.DepthOfFieldNearBlurSize = 4.16f;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldNearBlurSize = false;
-	FirstPersonCamera->PostProcessSettings.DepthOfFieldFarBlurSize = 5.72;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFarBlurSize = false;
-
 	FirstPersonCamera->AttachTo(GetRootComponent());
 
 	//Position the camera a bit above the eyes
-	FirstPersonCamera->RelativeLocation = FVector(0, 0, BaseEyeHeight);
+	FirstPersonCamera->RelativeLocation = FVector(0, 0, 50.0f + BaseEyeHeight);
 
 	//Allow the pawn to control rotation
 	FirstPersonCamera->bUsePawnControlRotation = true;
+	FirstPersonCamera->PostProcessSettings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_Gaussian;
+	FirstPersonCamera->PostProcessSettings.DepthOfFieldFocalDistance = 100.0f;
+	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldMethod = true;
+	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
 
 	m_UnderBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("UnderBodyMesh"));
-	m_UnderBodyMesh->AttachTo(FirstPersonCamera);
+	m_UnderBodyMesh->AttachTo(GetRootComponent());
 
 	m_TurnAxis = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurnAxis"));
 	m_TurnAxis->AttachTo(m_UnderBodyMesh);
 
 	m_TopBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TopBodyMesh"));
 	m_TopBodyMesh->AttachTo(m_TurnAxis);
+
+	/*
+	APPV = CreateDefaultSubobject<APostProcessVolume>(TEXT("APPV"));
+	APPV->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetIncludingScale,TEXT("APPV"));
+	APPV->bUnbound = false;
+	APPV->Settings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_BokehDOF;
+	APPV->Settings.DepthOfFieldFocalDistance = 100.0f;
+	*/
 }
 
 // Called when the game starts or when spawned
@@ -59,9 +52,9 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_UnderBodyMesh->SetHiddenInGame(false);
-	m_TurnAxis->SetHiddenInGame(false);
-	m_TopBodyMesh->SetHiddenInGame(false);
+	m_UnderBodyMesh->SetHiddenInGame(true);
+	m_TurnAxis->SetHiddenInGame(true);
+	m_TopBodyMesh->SetHiddenInGame(true);
 }
 
 // Called every frame
@@ -75,7 +68,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			m_openAxis -= openSpeed * DeltaTime;
 			m_TurnAxis->SetRelativeRotation(FQuat(FRotator(0.0f, 0.0f, m_openAxis)));
-			m_UnderBodyMesh->SetRelativeLocation(FVector(heightOfCellphone * (1 - m_openAxis / maxOpenAxis), 0.0f, distanceOfCellphone));
+			m_UnderBodyMesh->SetRelativeLocation(FVector(100.0f * (1 - m_openAxis / maxOpenAxis), 0.0f, 100.0f));
 		}
 	}
 	else
@@ -84,7 +77,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			m_openAxis += openSpeed * DeltaTime;
 			m_TurnAxis->SetRelativeRotation(FQuat(FRotator(0.0f, 0.0f, m_openAxis)));
-			m_UnderBodyMesh->SetRelativeLocation(FVector(heightOfCellphone * (1 - m_openAxis / maxOpenAxis), 0.0f, distanceOfCellphone));
+			m_UnderBodyMesh->SetRelativeLocation(FVector(100.0f * (1 - m_openAxis / maxOpenAxis), 0.0f, 100.0f));
 		}
 	}
 }
@@ -148,7 +141,7 @@ void APlayerCharacter::OccurEvent()
 		}
 		else if (!Usable)
 		{
-			//GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Can not Trace");
+			GEngine->AddOnScreenDebugMessage(0, 15.f, FColor::Black, "Can not Trace");
 		}
 	}
 }
@@ -171,7 +164,7 @@ AUsableActor* APlayerCharacter::GetUsableInView()
 	FHitResult *Hit = new FHitResult;
 	GetWorld()->LineTraceSingleByChannel(*Hit, TraceStart, TraceEnd, ECC_Visibility, *TraceParams);
 
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, true);
 
 	return Cast<AUsableActor>(Hit->GetActor());
 }
@@ -189,17 +182,8 @@ void APlayerCharacter::LoseItem(ItemName itemName)
 void APlayerCharacter::SetIsOperateCellphone()
 {
 	m_isOperateCellphone = !m_isOperateCellphone;
+	//APPV->bUnbound = m_isOperateCellphone;
 	m_UnderBodyMesh->SetHiddenInGame(!m_isOperateCellphone);
 	m_TurnAxis->SetHiddenInGame(!m_isOperateCellphone);
 	m_TopBodyMesh->SetHiddenInGame(!m_isOperateCellphone);
-
-	//camera focas setting
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldMethod = m_isOperateCellphone;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFocalDistance = m_isOperateCellphone;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFocalRegion = m_isOperateCellphone;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldNearTransitionRegion = m_isOperateCellphone;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFarTransitionRegion = m_isOperateCellphone;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldScale = m_isOperateCellphone;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldNearBlurSize = m_isOperateCellphone;
-	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFarBlurSize = m_isOperateCellphone;
 }
