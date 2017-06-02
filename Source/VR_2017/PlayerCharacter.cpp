@@ -11,14 +11,16 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 	m_isOperateCellphone(false),
 	maxTraceDistance(250.0f),
 	m_gotItemFlags(0),
-	m_openAxis(160.0f)
+	m_openAxis(160.0f),
+	lightUpAxis(0.0f),
+	lightRightAxis(0.0f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	FirstPersonCamera = ObjectInitialier.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FirstPersonCamera"));
 
-	//focas setting
+	//focas setting(need to 
 	FirstPersonCamera->PostProcessSettings.DepthOfFieldMethod = EDepthOfFieldMethod::DOFM_BokehDOF;
 	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldMethod = false;
 	FirstPersonCamera->PostProcessSettings.DepthOfFieldFocalDistance = 100.0f;
@@ -43,6 +45,11 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 
 	//Allow the pawn to control rotation
 	FirstPersonCamera->bUsePawnControlRotation = true;
+
+	m_Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
+	m_Flashlight->AttachTo(FirstPersonCamera);
+
+	m_Flashlight->RelativeLocation = FVector(0, 0, 0);
 
 	m_UnderBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("UnderBodyMesh"));
 	m_UnderBodyMesh->AttachTo(FirstPersonCamera);
@@ -100,8 +107,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
-	InputComponent->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
-	InputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
+
+	InputComponent->BindAxis("Turn", this, &APlayerCharacter::RightFlashlight/*AddControllerYawInput*/);
+	InputComponent->BindAxis("LookUp", this, &APlayerCharacter::UpFlashlight/*AddControllerPitchInput*/);
 
 	InputComponent->BindAction("OccurEvent", IE_Pressed, this, &APlayerCharacter::OccurEvent);
 
@@ -128,6 +136,29 @@ void APlayerCharacter::MoveRight(float value)
 
 		AddMovementInput(Direction, value);
 	}
+}
+
+void APlayerCharacter::UpFlashlight(float value)
+{
+	if ((Controller != NULL) && (value != 0))
+	{
+		lightUpAxis -= value;
+		m_Flashlight->SetRelativeRotation(FQuat(FRotator(lightUpAxis, lightRightAxis, 0.0f)));
+	}
+}
+
+void APlayerCharacter::RightFlashlight(float value)
+{
+	if ((Controller != NULL) && (value != 0))
+	{
+		lightRightAxis += value;
+		m_Flashlight->SetRelativeRotation(FQuat(FRotator(lightUpAxis, lightRightAxis, 0.0f)));
+	}
+}
+
+void APlayerCharacter::SquatView()
+{
+
 }
 
 void APlayerCharacter::OccurEvent()

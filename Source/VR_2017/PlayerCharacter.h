@@ -29,6 +29,12 @@ public:
 
 	void MoveRight(float value);
 
+	void UpFlashlight(float value);
+
+	void RightFlashlight(float value);
+
+	void SquatView();
+
 	void OccurEvent();
 
 	class AUsableActor* GetUsableInView();
@@ -46,6 +52,9 @@ private:
 	UPROPERTY(EditAnywhere)
 		float maxTraceDistance;
 
+	UPROPERTY(EditAnywhere)
+		UPointLightComponent* m_Flashlight;
+
 	const float heightOfCellphone = 65.0f;
 	const float distanceOfCellphone = -25.0f;
 
@@ -59,6 +68,8 @@ private:
 	void LoseItem(enum class ItemName itemName);
 
 	void SetIsOperateCellphone();
+
+	float lightUpAxis, lightRightAxis;
 
 /******Debug*******/
 private:
