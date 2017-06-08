@@ -38,7 +38,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 	FirstPersonCamera->PostProcessSettings.DepthOfFieldFarBlurSize = 5.72;
 	FirstPersonCamera->PostProcessSettings.bOverride_DepthOfFieldFarBlurSize = false;
 
-	FirstPersonCamera->AttachTo(GetRootComponent());
+	FirstPersonCamera->AttachTo(RootComponent);
 
 	//Position the camera a bit above the eyes
 	FirstPersonCamera->RelativeLocation = FVector(0, 0, BaseEyeHeight);
@@ -47,7 +47,7 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 	FirstPersonCamera->bUsePawnControlRotation = true;
 
 	m_Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
-	m_Flashlight->AttachTo(FirstPersonCamera);
+	m_Flashlight->AttachTo(RootComponent);
 
 	m_Flashlight->RelativeLocation = FVector(0, 0, 0);
 
@@ -59,6 +59,12 @@ APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitialier) :
 
 	m_TopBodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TopBodyMesh"));
 	m_TopBodyMesh->AttachTo(m_TurnAxis);
+
+	//set step height
+	this->GetCharacterMovement()->MaxStepHeight = 10.0f;
+
+	//set walkable angle
+	//this->GetCharacterMovement()->SetWalkableFloorAngle = 45.0f;
 }
 
 // Called when the game starts or when spawned
@@ -140,16 +146,16 @@ void APlayerCharacter::MoveRight(float value)
 
 void APlayerCharacter::UpFlashlight(float value)
 {
-	if ((Controller != NULL) && (value != 0))
+	if ((Controller != NULL) && (value != 0) && lightUpAxis * value <= 20.0f)
 	{
-		lightUpAxis -= value;
+		lightUpAxis += value;
 		m_Flashlight->SetRelativeRotation(FQuat(FRotator(lightUpAxis, lightRightAxis, 0.0f)));
 	}
 }
 
 void APlayerCharacter::RightFlashlight(float value)
 {
-	if ((Controller != NULL) && (value != 0))
+	if ((Controller != NULL) && (value != 0) && lightRightAxis * value <= 30.0f)
 	{
 		lightRightAxis += value;
 		m_Flashlight->SetRelativeRotation(FQuat(FRotator(lightUpAxis, lightRightAxis, 0.0f)));
