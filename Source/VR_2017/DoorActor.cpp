@@ -56,6 +56,7 @@ void ADoorActor::Tick(float DeltaTime)
 ItemName ADoorActor::Event()
 {
 	m_isOpen = true;
+	m_MyMesh->StaticMesh->StaticMaterials[0] = m_MyMesh->StaticMesh->StaticMaterials[2];
 	return ItemName::noItem;
 }
 
