@@ -72,9 +72,9 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_UnderBodyMesh->SetHiddenInGame(false);
-	m_TurnAxis->SetHiddenInGame(false);
-	m_TopBodyMesh->SetHiddenInGame(false);
+	m_UnderBodyMesh->SetHiddenInGame(true);
+	m_TurnAxis->SetHiddenInGame(true);
+	m_TopBodyMesh->SetHiddenInGame(true);
 }
 
 // Called every frame
@@ -113,6 +113,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	InputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
+	InputComponent->BindAxis("TurnDebug", this, &APlayerCharacter::AddControllerYawInput);
+	InputComponent->BindAxis("LookUpDebug", this, &APlayerCharacter::AddControllerPitchInput);
 
 	InputComponent->BindAxis("Turn", this, &APlayerCharacter::RightFlashlight/*AddControllerYawInput*/);
 	InputComponent->BindAxis("LookUp", this, &APlayerCharacter::UpFlashlight/*AddControllerPitchInput*/);

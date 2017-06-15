@@ -38,19 +38,20 @@ ItemName AUsableActor::Event()
 		{ItemName::book, "book"},
 		{ItemName::key, "key"},
 		{ItemName::paper, "paper"},
-		{ItemName::clip, "clip"}
+		{ItemName::clip, "clip"},
+		{ItemName::chair, "chair"}
 	};
 
 	FString item = "You got " + myMap.at(m_itemName);
 
-	//GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Black, item);
+	GEngine->AddOnScreenDebugMessage(0, 5.f, FColor::Red, item);
 
 	/*********************************************************************/
 
 	// disable an actor
-	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
-	SetActorTickEnabled(false);
+	//SetActorHiddenInGame(true);
+	//SetActorEnableCollision(false);
+	//SetActorTickEnabled(false);
 
 	return m_itemName;
 }
