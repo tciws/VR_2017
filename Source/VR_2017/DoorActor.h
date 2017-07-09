@@ -32,7 +32,8 @@ public:
 		void TriggerExit(class UPrimitiveComponent* HitComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
-	USceneComponent* m_Parent;
+	UPROPERTY(EditAnywhere)
+		USceneComponent* m_Parent;
 
 	UPROPERTY(EditAnywhere)
 		UShapeComponent* m_TurnAxis;
